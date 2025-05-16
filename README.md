@@ -13,7 +13,7 @@ Note - variables and their values are all case sensitive. This is particularly i
 3. Make the API call to Odoo: 
 Replace values in < > with your info, remove the < > but KEEP THE QUOTES
 
-[CODE]URI: https://YOURDB.odoo.com/jsonrpc
+URI: https://YOURDB.odoo.com/jsonrpc
 Method: Post
 Headers:
 content-type:application/json
@@ -50,22 +50,22 @@ Body:
     ]
   },
   "id": YOUR USER ID
-}[/CODE]
+}
 
 4. Set the variable Response with this as an expression: 
-[CODE]string(body('HTTP')?['result']?[0]?['id'])[/CODE]
+string(body('HTTP')?['result']?[0]?['id'])
 
 5. Add in a Condition, check if the following input is "true"
-[CODE]empty(variables('Response'))][/CODE]
+empty(variables('Response'))]
 
    a. If True: Send a HTTP Request, label it "Create New Contact"
    b. Set Response variable with ID from new contact: 
-[CODE]string(body('Create_New_Contact')?['result'])[/CODE]
+string(body('Create_New_Contact')?['result'])
 
    c. Add in another condition, check if "empty(variable('Response')) is "true" 
       a. If True, set response variable to "new"
 6. Send a response:
-[CODE]Status Code: 200
+Status Code: 200
 Headers: content-type:text/html
 
 Body:
@@ -80,7 +80,7 @@ Body:
     <p>Redirecting to contact...</p>
     <p>If you're not redirected, <a href="https://<YOURDATABASE>.odoo.com/odoo/contacts/@{variables('Response')}">click here</a>.</p>
   </body>
-</html>[/CODE]
+</html>
 
 
 Publish the flow, then go to the trigger (labeled "manual" by default) to obtain the HTTP URI. We'll need this in the next step. 
@@ -89,7 +89,7 @@ Your flow should look something like this when done:
 
 
 7. In 3CX, click Settings then Integration. Under CRM Integration, select Open Contact in Custom CRM. In the Open contact URL, paste the HTTP URI you copied from Power Automate and the following at the end:
-[CODE]&tn=%CallerNumber%&Name=%CallerDisplayName%[/CODE]
+&tn=%CallerNumber%&Name=%CallerDisplayName%
 
 8. Set Notify when to your preference and give it a test.
 
