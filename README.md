@@ -14,7 +14,7 @@ UPDATE: I added a JSON file you can import into N8N. In the Environmental Variab
 2. Initialize a variable, call it Response
 3. Make the API call to Odoo: 
 Replace values in < > with your info, remove the < > but KEEP THE QUOTES
-<QUOTE>
+<CODE>
 URI: https://YOURDB.odoo.com/jsonrpc
 Method: Post
 Headers:
@@ -53,7 +53,7 @@ Body:
   },
   "id": YOUR USER ID
 }
-</QUOTE>
+</CODE>
 
 4. Set the variable Response with this as an expression: 
 string(body('HTTP')?['result']?[0]?['id'])
@@ -62,7 +62,6 @@ string(body('HTTP')?['result']?[0]?['id'])
 empty(variables('Response'))]
 
    a. If True: Send a HTTP Request, label it "Create New Contact"
-
 
 <CDOE>
 URI: https://YOURDB.odoo.com/jsonrpc
@@ -105,7 +104,6 @@ Body:
   "id": 2
 }  
  </CODE>
-   #####################
    
    b. Set Response variable with ID from new contact: 
 string(body('Create_New_Contact')?['result'])
@@ -113,7 +111,8 @@ string(body('Create_New_Contact')?['result'])
    c. Add in another condition, check if "empty(variable('Response')) is "true" 
       a. If True, set response variable to "new"
 7. Send a response:
-#####################
+
+<CODE>
 Status Code: 200
 Headers: content-type:text/html
 
@@ -130,8 +129,8 @@ Body:
     <p>If you're not redirected, <a href="https://<YOURDATABASE>.odoo.com/odoo/contacts/@{variables('Response')}">click here</a>.</p>
   </body>
 </html>
+</CODE>
 
-#####################
 Publish the flow, then go to the trigger (labeled "manual" by default) to obtain the HTTP URI. We'll need this in the next step. 
 
 
