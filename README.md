@@ -14,6 +14,7 @@ UPDATE: I added a JSON file you can import into N8N. In the Environmental Variab
 2. Initialize a variable, call it Response
 3. Make the API call to Odoo: 
 Replace values in < > with your info, remove the < > but KEEP THE QUOTES
+
 <CODE>
 URI: https://YOURDB.odoo.com/jsonrpc
 Method: Post
@@ -56,10 +57,10 @@ Body:
 </CODE>
 
 4. Set the variable Response with this as an expression: 
-string(body('HTTP')?['result']?[0]?['id'])
+<code>string(body('HTTP')?['result']?[0]?['id'])</Code>
 
 5. Add in a Condition, check if the following input is "true"
-empty(variables('Response'))]
+<code>empty(variables('Response'))]</Code>
 
    a. If True: Send a HTTP Request, label it "Create New Contact"
 
@@ -106,7 +107,7 @@ Body:
  </CODE>
    
    b. Set Response variable with ID from new contact: 
-string(body('Create_New_Contact')?['result'])
+<code>string(body('Create_New_Contact')?['result'])</code>
 
    c. Add in another condition, check if "empty(variable('Response')) is "true" 
       a. If True, set response variable to "new"
