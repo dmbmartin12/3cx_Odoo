@@ -1,0 +1,397 @@
+{
+  "name": "3CX Screen Pop",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "d3b5532d-8097-4fcb-bf38-dece3ed25d9c",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        0
+      ],
+      "id": "65eba887-8cb1-4793-939b-80b99317a649",
+      "name": "Webhook",
+      "webhookId": "d3b5532d-8097-4fcb-bf38-dece3ed25d9c"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://{{ $('Environmental Variables').item.json['Database Name'] }}.odoo.com/jsonrpc/",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "accept",
+              "value": "application/json"
+            },
+            {
+              "name": "content-type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $json.JSONBody }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        640,
+        0
+      ],
+      "id": "97b927f7-68a3-45fa-80d4-c316d0ca77d3",
+      "name": "Lookup Contact"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "c08f4760-292c-440b-8e82-a4a0f225e0c0",
+              "name": "JSONBody",
+              "value": "={\n  \"jsonrpc\": \"2.0\",\n  \"method\": \"call\",\n  \"params\": {\n    \"service\": \"object\",\n    \"method\": \"execute_kw\",\n    \"args\": [\n      \"{{ $('Environmental Variables').item.json['Database Name'] }}\",\n      {{ $('Environmental Variables').item.json['User ID'] }},\n      \"{{ $('Environmental Variables').item.json['API Key'] }}\",\n      \"res.partner\",\n      \"create\",\n      [\n        {\n          \"phone\": \"{{ $('Environmental Variables').item.json.FormattedTN }}\",\n          \"name\": \"{{ $('Webhook').item.json.query.Name }}\"\n        }\n      ]\n    ]\n  },\n  \"id\": {{ $('Environmental Variables').item.json['User ID'] }}\n}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1100,
+        -100
+      ],
+      "id": "3cb9a4c1-f9dd-4737-8b45-efdad950ae93",
+      "name": "New Contact Body"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://{{ $('Environmental Variables').item.json['Database Name'] }}.odoo.com/jsonrpc",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "Application/json"
+            },
+            {
+              "name": "accept",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $json.JSONBody }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1300,
+        -100
+      ],
+      "id": "a5aa672a-92cd-477d-ab7a-980417f69628",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "934b6a29-7c82-4cf2-894e-fa269026cb09",
+              "name": "Database Name",
+              "value": "",
+              "type": "string"
+            },
+            {
+              "id": "d8ec8957-2cd6-4d83-839e-10c3943a00cb",
+              "name": "User ID",
+              "value": "",
+              "type": "string"
+            },
+            {
+              "id": "59d5b1c1-bb6c-4788-bb9d-516fbb7dab3a",
+              "name": "API Key",
+              "value": "",
+              "type": "string"
+            },
+            {
+              "id": "23acbf1d-025a-48b8-ac81-cbdec6fdca40",
+              "name": "FormattedTN",
+              "value": "=+{{ $json.query.TN.substring(1,2) }} {{ $json.query.TN.substring(2,5) }}-{{ $json.query.TN.substring(5,8) }}-{{ $json.query.TN.substring(8,) }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        220,
+        0
+      ],
+      "id": "2fa8399b-ea6f-475a-bb12-a7b2ec8c3731",
+      "name": "Environmental Variables"
+    },
+    {
+      "parameters": {
+        "respondWith": "redirect",
+        "redirectURL": "=https://{{ $('Environmental Variables').item.json['Database Name'] }}.odoo.com/odoo/contacts/{{ $json.result }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.2,
+      "position": [
+        1720,
+        -260
+      ],
+      "id": "1460a52b-fd9b-4e61-9856-436019724ce3",
+      "name": "Redirect to newly created contact"
+    },
+    {
+      "parameters": {
+        "respondWith": "redirect",
+        "redirectURL": "=https://{{ $('Environmental Variables').item.json['Database Name'] }}.odoo.com/odoo/contacts/new",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.2,
+      "position": [
+        1720,
+        -60
+      ],
+      "id": "2d24cd9d-5538-47fb-9b5d-2118c4dee1a6",
+      "name": "Redirect to New Contact screen"
+    },
+    {
+      "parameters": {
+        "respondWith": "redirect",
+        "redirectURL": "=https://{{ $('Environmental Variables').item.json['Database Name'] }}.odoo.com/odoo/contacts/{{ $('Lookup Contact').item.json.result[0].id }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.2,
+      "position": [
+        1080,
+        100
+      ],
+      "id": "2f1ee51d-3f48-491c-b538-0605bc9b78f8",
+      "name": "Redirect to found contact"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "43c071fb-aa13-4e19-be8a-19cad521e070",
+              "leftValue": "={{ $json.result[0].id }}",
+              "rightValue": "",
+              "operator": {
+                "type": "number",
+                "operation": "notExists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        860,
+        0
+      ],
+      "id": "054c6b53-1d95-4e5d-a22c-91db55c5f149",
+      "name": "If a contact is not found"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "8aa24ec8-4d2a-4a7d-bfd5-e02107785695",
+              "leftValue": "={{ $json.result }}",
+              "rightValue": "",
+              "operator": {
+                "type": "number",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1500,
+        -100
+      ],
+      "id": "c89dadbb-1ac9-4c9e-a27a-79f14ebb4c50",
+      "name": "If contact creation fails"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "0012576c-6d29-4ab0-8add-78786a4e8b3e",
+              "name": "JSONBody",
+              "value": "={\n  \"jsonrpc\": \"2.0\",\n  \"method\": \"call\",\n  \"params\": {\n    \"service\": \"object\",\n    \"method\": \"execute_kw\",\n    \"args\": [\n      \"{{ $json['Database Name'] }}\",\n      {{ $json['User ID'] }},\n      \"{{ $json['API Key'] }}\",\n      \"res.partner\",\n      \"search_read\",\n      [\n        [\n          [\n            \"phone\",\n            \"=\",\n            \"{{$json.FormattedTN}}\"\n          ]\n        ]\n      ],\n      {\n        \"fields\": [\n          \"id\"\n        ],\n        \"limit\": 1\n      }\n    ]\n  },\n  \"id\": {{ $json['User ID'] }}\n}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        440,
+        0
+      ],
+      "id": "06bf205e-dc2d-4ee8-9b44-333f01532953",
+      "name": "Search Body"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Environmental Variables",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Lookup Contact": {
+      "main": [
+        [
+          {
+            "node": "If a contact is not found",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "New Contact Body": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "If contact creation fails",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Environmental Variables": {
+      "main": [
+        [
+          {
+            "node": "Search Body",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If a contact is not found": {
+      "main": [
+        [
+          {
+            "node": "New Contact Body",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Redirect to found contact",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If contact creation fails": {
+      "main": [
+        [
+          {
+            "node": "Redirect to newly created contact",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Redirect to New Contact screen",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search Body": {
+      "main": [
+        [
+          {
+            "node": "Lookup Contact",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "8889c2c3-0090-4f13-93e0-854955eb123e",
+  "meta": {
+    },
+  "id": "4Qz1xdkye7ANYggI",
+  "tags": []
+}
